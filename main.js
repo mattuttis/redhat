@@ -70,25 +70,18 @@ window.addEventListener('load', () => {
                 }
             }
             this.backgroundImg = new Image();
+            this.backgroundImg.width = 600;
+            this.backgroundImg.height = 400;
             this.backgroundImg.src = backgroundCanvas.toDataURL("image/png");
             this.vpContext = vpContext;
+
+            this.mapX = 0;
         }
 
         draw() {
             vpContext.clearRect(0, 0, 600, 400);
-            vpContext.drawImage(this.backgroundImg, 0, 0);
-
-            // create background image and paint...
-            for (var i = 0; i < this.map.length; i++) {
-                for (var j = 0; j < this.map[i].length; j++) {
-                    if (this.map[i][j] === 1) {
-                        vpContext.drawImage(imgGround, j * 50, i * 50);
-                    }
-                    if (this.map[i][j] === 2) {
-                        vpContext.drawImage(imgSand, j * 50, i * 50);
-                    }
-                }
-            }
+            this.mapX--;
+            vpContext.drawImage(this.backgroundImg, this.mapX, 0);
         }
     }
 

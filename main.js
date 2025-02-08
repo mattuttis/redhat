@@ -57,25 +57,26 @@ window.addEventListener('load', () => {
                 [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2],];
             this.requestScrolling = false;
 
-            // var backgroundCanvas = document.getElementById('backgroundCanvas');
-            // var backgroundCtx = backgroundCanvas.getContext('2d');
-
-
+            var backgroundCanvas = document.getElementById('backgroundCanvas');
+            var backgroundCtx = backgroundCanvas.getContext('2d');
             for (var i = 0; i < this.map.length; i++) {
                 for (var j = 0; j < this.map[i].length; j++) {
                     if (this.map[i][j] === 1) {
-                        vpContext.drawImage(imgGround, j * 50, i * 50);
+                        backgroundCtx.drawImage(imgGround, j * 50, i * 50);
                     }
                     if (this.map[i][j] === 2) {
-                        vpContext.drawImage(imgSand, j * 50, i * 50);
+                        backgroundCtx.drawImage(imgSand, j * 50, i * 50);
                     }
                 }
             }
+            this.backgroundImg = new Image();
+            this.backgroundImg.src = backgroundCanvas.toDataURL("image/png");
+            this.vpContext = vpContext;
         }
 
         draw() {
             vpContext.clearRect(0, 0, 600, 400);
-            vpContext.drawImage()
+            vpContext.drawImage(this.backgroundImg, 0, 0);
 
             // create background image and paint...
             for (var i = 0; i < this.map.length; i++) {

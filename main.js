@@ -55,11 +55,29 @@ window.addEventListener('load', () => {
                 [0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2],
                 [0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2],
                 [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2],];
+            this.requestScrolling = false;
+
+            // var backgroundCanvas = document.getElementById('backgroundCanvas');
+            // var backgroundCtx = backgroundCanvas.getContext('2d');
+
+
+            for (var i = 0; i < this.map.length; i++) {
+                for (var j = 0; j < this.map[i].length; j++) {
+                    if (this.map[i][j] === 1) {
+                        vpContext.drawImage(imgGround, j * 50, i * 50);
+                    }
+                    if (this.map[i][j] === 2) {
+                        vpContext.drawImage(imgSand, j * 50, i * 50);
+                    }
+                }
+            }
         }
 
         draw() {
             vpContext.clearRect(0, 0, 600, 400);
+            vpContext.drawImage()
 
+            // create background image and paint...
             for (var i = 0; i < this.map.length; i++) {
                 for (var j = 0; j < this.map[i].length; j++) {
                     if (this.map[i][j] === 1) {
@@ -103,10 +121,11 @@ window.addEventListener('load', () => {
         }
 
         update(input) {
-            if (this.x >= this.xRightSidePlayingField) {
-                console.log("BUMP RIGHT");
+            if (this.x >= 500) {
+                console.log('BUMP');
+                background.requestScrolling = true;
             }
-            // up
+
             if (input.keys.indexOf(' ') > -1) {
                 this.jumping = true;
                 if (!this.hittingAboveTile(-3)) {

@@ -1,0 +1,22 @@
+body {
+    background: black;
+}
+
+#vpCanvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    max-width: 100%;
+    max-height: 100%;
+    transform: translate(-50%, -50%);
+    border: solid white 5px;
+}
+
+#gameMetrics {
+    position: absolute;
+    left: 50%;
+    width: 600px;
+    max-width: 100%;
+    transform: translate(-50%, 0);
+    background: yellow;
+}

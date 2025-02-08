@@ -1,0 +1,23 @@
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <title>Experimental game engine</title>
+</head>
+<body>
+    <canvas id="vpCanvas"></canvas>
+    <!-- Load images -->
+    <img id="imgGround" src="img/ground.png" hidden/>
+    <img id="imgSand" src="img/sand.png" hidden/>
+
+    <div id="gameMetrics">
+        <div>Player</div>
+        <div style="display: flex;">
+            <div>x:</div><div>&nbsp;</div><div id="xPlayer"></div>
+        </div>
+        <div style="display: flex;">
+            <div>y:</div><div>&nbsp;</div><div id="yPlayer"></div>
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

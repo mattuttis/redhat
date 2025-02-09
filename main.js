@@ -47,14 +47,14 @@ window.addEventListener('load', () => {
     class Background {
         constructor(vpContext) {
             this.map = [
-                [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [2, 2, 2, 1, 1, 0, 0, 0, 1, 1, 1, 1],
-                [0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2],
-                [0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2],
-                [0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2],
-                [0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2],
-                [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2],];
+                [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [2, 2, 2, 1, 1, 0, 0, 0, 1, 1, 1, 1,    0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2,    0, 0, 1, 2, 2, 1, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2,    1, 1, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2,    2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2,    2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2,    2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1],];
             this.requestScrolling = false;
 
             var backgroundCanvas = document.getElementById('backgroundCanvas');
@@ -70,9 +70,11 @@ window.addEventListener('load', () => {
                 }
             }
             this.backgroundImg = new Image();
-            this.backgroundImg.width = 600;
+            this.backgroundImg.width = 1200;
             this.backgroundImg.height = 400;
             this.backgroundImg.src = backgroundCanvas.toDataURL("image/png");
+
+            backgroundCanvas.remove();
             this.vpContext = vpContext;
 
             this.mapX = 0;
@@ -133,20 +135,10 @@ window.addEventListener('load', () => {
                 if (!this.hittingLeftSideTile()) {
                     background.mapX--;
                 }
-                // if (!this.hittingLeftSideTile()) {
-                //     if (this.jumping) {
-                //         this.lastHorizontalMove = 2;
-                //     }
-                //     this.x++;
-                // }
             } else if (input.keys.indexOf('ArrowLeft') > -1) {
-                // if (!this.hittingRightSideTile()) {
-                //     if (this.jumping) {
-                //         this.lastHorizontalMove = 1;
-                //     }
-                //     this.x--;
-                // }
-                background.mapX++;
+                if (!this.hittingRightSideTile()) {
+                    background.mapX++;
+                }
             }  else {
                 if (!this.hittingGround()) {
                     this.y += 1;
@@ -175,10 +167,11 @@ window.addEventListener('load', () => {
         hittingGround() {
             for (var i = 0; i < this.background.map.length; i++) {
                 for (var j = 0; j < this.background.map[i].length; j++) {
+
                     if (this.background.map[i][j] !== 0) {
                         // we have ground
-                        var beginPlayer = this.x;
-                        var endPlayer = this.x + 24
+                        var beginPlayer = this.x - background.mapX;
+                        var endPlayer = this.x + 24 - background.mapX;
                         var bottomPlayer = this.y + 24;
 
                         var beginTile = j * 50;
@@ -200,7 +193,7 @@ window.addEventListener('load', () => {
             for (var i = 0; i < this.background.map.length; i++) {
                 for (var j = 0; j < this.background.map[i].length; j++) {
 
-                    var activeHorizontalTile = Math.floor(this.x / 50);
+                    var activeHorizontalTile = Math.floor((this.x - background.mapX)/ 50);
                     var activeVerticalTile = Math.floor(this.y / 50) ;
                     if (j !== activeHorizontalTile && i !== activeVerticalTile - 1) {
                         continue;
@@ -208,8 +201,8 @@ window.addEventListener('load', () => {
 
                     if (this.background.map[i][j] !== 0) {
                         // we have ground
-                        var beginPlayer = this.x;
-                        var endPlayer = this.x + 24;
+                        var beginPlayer = this.x - background.mapX;
+                        var endPlayer = this.x + 24 - background.mapX;
                         var topPlayer = this.y;
 
                         var beginTile = j * 50;
@@ -236,34 +229,26 @@ window.addEventListener('load', () => {
             for (var i = 0; i < this.background.map.length; i++) {
                 for (let j = 0; j < this.background.map[i].length; j++) {
 
-                    // var activeHorizontalTile = Math.floor(this.x + background.mapX/ 50);
-                    // if (j < activeHorizontalTile) {
-                    //     continue;
-                    // }
-
-                    if (i === 3) {
-                        console.log('map[' + i + '][' + j + ']');
+                    var activeHorizontalTile = Math.floor((this.x - background.mapX)/ 50);
+                    if (j < activeHorizontalTile) {
+                        continue;
                     }
 
                     if (this.background.map[i][j] !== 0) {
-                        var leftPlayer = this.x + background.mapX;
-                        var rightPlayer = this.x + 24 + background.mapX;
+
+                        var leftPlayer = this.x - background.mapX;
+                        var rightPlayer = this.x + 24 - background.mapX;
                         var topPlayer = this.y;
                         var bottomPlayer = this.y + 24;
-
                         var topTile = i * 50;
+
                         var bottomTile = topTile + 49;
-                        var leftTile = j * 50 + background.mapX;
-
-
-                        console.log('leftPlayer', leftPlayer);
-                        console.log('rightPlayer', rightPlayer);
-                        console.log('leftTile', leftTile);
-                        console.log('mapX', background.mapX);
+                        var leftTile = j * 50;// - background.mapX;
 
                         if (((bottomPlayer >= topTile && bottomPlayer <= bottomTile) ||
                                 (topPlayer <= bottomTile && topPlayer >= topTile)) &&
                             (rightPlayer + 1 >= leftTile)) {
+                            // Hit
                             return true
                         }
                     }
@@ -273,16 +258,17 @@ window.addEventListener('load', () => {
         }
 
         hittingRightSideTile() {
-            for (var i = 0; i < this.background.map.length; i++) {
-                for (var j = 0; j < this.background.map[i].length; j++) {
+            for (let i = 0; i < this.background.map.length; i++) {
+                for (let j = 0; j < this.background.map[i].length; j++) {
 
-                    var activeHorizontalTile = Math.floor(this.x / 50);
+                    var activeHorizontalTile = Math.floor((this.x - background.mapX) / 50);
                     if (j > activeHorizontalTile) {
                         continue;
+
                     }
 
                     if (this.background.map[i][j] !== 0) {
-                        var leftPlayer = this.x;
+                        var leftPlayer = this.x - background.mapX;
                         var topPlayer = this.y;
                         var bottomPlayer = this.y + 24;
 

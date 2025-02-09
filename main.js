@@ -80,7 +80,6 @@ window.addEventListener('load', () => {
 
         draw() {
             vpContext.clearRect(0, 0, 600, 400);
-            this.mapX--;
             vpContext.drawImage(this.backgroundImg, this.mapX, 0);
         }
     }
@@ -100,8 +99,8 @@ window.addEventListener('load', () => {
         constructor(vpContext, background) {
             this.vpContext = vpContext;
             this.background = background;
-            this.x = 0;
-            this.y = 300;
+            this.x = 300;
+            this.y = 150;
             this.width = 25;
             this.height = 25;
             this.jumping = false;
@@ -132,18 +131,22 @@ window.addEventListener('load', () => {
             }
             if (input.keys.indexOf('ArrowRight') > -1) {
                 if (!this.hittingLeftSideTile()) {
-                    if (this.jumping) {
-                        this.lastHorizontalMove = 2;
-                    }
-                    this.x++;
+                    background.mapX--;
                 }
+                // if (!this.hittingLeftSideTile()) {
+                //     if (this.jumping) {
+                //         this.lastHorizontalMove = 2;
+                //     }
+                //     this.x++;
+                // }
             } else if (input.keys.indexOf('ArrowLeft') > -1) {
-                if (!this.hittingRightSideTile()) {
-                    if (this.jumping) {
-                        this.lastHorizontalMove = 1;
-                    }
-                    this.x--;
-                }
+                // if (!this.hittingRightSideTile()) {
+                //     if (this.jumping) {
+                //         this.lastHorizontalMove = 1;
+                //     }
+                //     this.x--;
+                // }
+                background.mapX++;
             }  else {
                 if (!this.hittingGround()) {
                     this.y += 1;
@@ -233,19 +236,30 @@ window.addEventListener('load', () => {
             for (var i = 0; i < this.background.map.length; i++) {
                 for (let j = 0; j < this.background.map[i].length; j++) {
 
-                    var activeHorizontalTile = Math.floor(this.x / 50);
-                    if (j < activeHorizontalTile) {
-                        continue;
+                    // var activeHorizontalTile = Math.floor(this.x + background.mapX/ 50);
+                    // if (j < activeHorizontalTile) {
+                    //     continue;
+                    // }
+
+                    if (i === 3) {
+                        console.log('map[' + i + '][' + j + ']');
                     }
 
                     if (this.background.map[i][j] !== 0) {
-                        var rightPlayer = this.x + 24;
+                        var leftPlayer = this.x + background.mapX;
+                        var rightPlayer = this.x + 24 + background.mapX;
                         var topPlayer = this.y;
                         var bottomPlayer = this.y + 24;
 
                         var topTile = i * 50;
                         var bottomTile = topTile + 49;
-                        var leftTile = j * 50;
+                        var leftTile = j * 50 + background.mapX;
+
+
+                        console.log('leftPlayer', leftPlayer);
+                        console.log('rightPlayer', rightPlayer);
+                        console.log('leftTile', leftTile);
+                        console.log('mapX', background.mapX);
 
                         if (((bottomPlayer >= topTile && bottomPlayer <= bottomTile) ||
                                 (topPlayer <= bottomTile && topPlayer >= topTile)) &&

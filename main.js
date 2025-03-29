@@ -96,8 +96,11 @@ window.addEventListener('load', () => {
         }
 
         update() {
-            document.getElementById("xPlayer").innerText = this.player.x;
-            document.getElementById("yPlayer").innerText = this.player.y;
+            document.getElementById('xPlayer').innerText = this.player.x;
+            document.getElementById('yPlayer').innerText = this.player.y;
+            document.getElementById('jumpStep').innerText = this.player.jumpStep;
+            document.getElementById('jumped').innerText = this.player.jumped
+            document.getElementById('jumping').innerText = this.player.jumping
         }
     }
 
@@ -111,7 +114,9 @@ window.addEventListener('load', () => {
             this.height = 25;
             this.jumping = false;
             this.lastHorizontalMove = 0; // 1: left; 2: right
-            this.xRightSidePlayingField = 500;
+            this.maxHeightJump = 100;
+            this.jumped = 0;
+            this.jumpStep = 0;
         }
 
         draw() {
@@ -120,16 +125,7 @@ window.addEventListener('load', () => {
         }
 
         update(input) {
-            if (input.keys.indexOf(' ') > -1) {
-                this.jumping = true;
-                if (!this.hittingAboveTile(-3)) {
-                    this.y = this.y - 3;
-                } else if (!this.hittingAboveTile(-2)) {
-                    this.y = this.y - 2;
-                } if (!this.hittingAboveTile(-1)) {
-                    this.y = this.y - 1;
-                }
-            }
+            this.handleJump(input);
             if (input.keys.indexOf('ArrowRight') > -1) {
                 if (!this.hittingLeftSideTile()) {
                     background.mapX--;
@@ -139,6 +135,9 @@ window.addEventListener('load', () => {
                     background.mapX++;
                 }
             }  else {
+                if (this.jumping) {
+                    return;
+                }
                 if (!this.hittingGround()) {
                     this.y += 1;
                     if (this.jumping) {
@@ -157,9 +156,73 @@ window.addEventListener('load', () => {
                 } else {
                     if (this.jumping) {
                         this.jumping = false;
+                        this.jumped = 0;
                         this.lastHorizontalMove = 0;
                     }
                 }
+            }
+        }
+
+        handleJump(input) {
+            if (input.keys.indexOf(' ') > -1) {
+                this.jumping = true;
+
+                if (this.jumped >= this.maxHeightJump) {
+                    this.jumpping = false;
+                    this.jumpStep = 0;
+                    return;
+                }
+
+                if (!this.jumping) {
+                    console.log('Should not jump');
+                }
+
+                if (this.jumped < 50) {
+                    this.jumpStep = 5;
+                } else if (this.jumped >= 50 && this.jumped < 75) {
+                    this.jumpStep = 3;
+                } else if (this.jumped >= 75) {
+                    this.jumpStep = 1;
+                }
+
+                if (!this.hittingCeiling(-this.jumpStep)) {
+                    this.y = this.y - this.jumpStep;
+                    this.jumped += this.jumpStep;
+                    console.log('jumpStep', this.jumpStep);
+                    console.log('jumped', this.jumped);
+                    console.log('this.y', this.y);
+                } else if ((this.jumpStep -1) > 0 && !this.hittingCeiling(-(this.jumpStep -1))) {
+                    this.y = this.y - (this.jumpStep - 1);
+                    this.jumped += this.jumpStep -1;
+                    console.log('jumpStep', this.jumpStep);
+                    console.log('jumped', this.jumped);
+                    console.log('this.y', this.y);
+                } else if ((this.jumpStep -2) > 0 && !this.hittingCeiling(-(this.jumpStep -2))) {
+                    this.y = this.y - (this.jumpStep - 2);
+                    this.jumped += this.jumpStep -2;
+                    console.log('jumpStep', this.jumpStep);
+                    console.log('jumped', this.jumped);
+                    console.log('this.y', this.y);
+                } else if ((this.jumpStep -3) > 0 && !this.hittingCeiling(-(this.jumpStep -3))) {
+                    this.y = this.y - (this.jumpStep - 3);
+                    this.jumped += this.jumpStep -3;
+                    console.log('jumpStep', this.jumpStep);
+                    console.log('jumped', this.jumped);
+                    console.log('this.y', this.y);
+                } else if ((this.jumpStep -4) > 0 && !this.hittingCeiling(-(this.jumpStep -4))) {
+                    this.y = this.y - (this.jumpStep - 4);
+                    this.jumped += this.jumpStep -4;
+                    console.log('jumpStep', this.jumpStep);
+                    console.log('jumped', this.jumped);
+                    console.log('this.y', this.y);
+                }
+                console.log('---');
+            } else {
+                // if (this.jumping) {
+                    this.jumping = false;
+                    this.jumpStep = 0;
+                    this.jumped = 0;
+                // }
             }
         }
 
@@ -188,7 +251,7 @@ window.addEventListener('load', () => {
             return false;
         }
 
-        hittingAboveTile(deltaY) {
+        hittingCeiling(deltaY) {
             for (var i = 0; i < this.background.map.length; i++) {
                 for (var j = 0; j < this.background.map[i].length; j++) {
 

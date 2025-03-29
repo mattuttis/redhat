@@ -167,6 +167,9 @@ window.addEventListener('load', () => {
 
         handleJump(input) {
             if (input.keys.indexOf(' ') > -1) {
+                if (!this.grounded && !this.jumping) {
+                    return;
+                }
                 this.jumping = true;
 
                 if (this.jumped >= this.maxHeightJump) {

@@ -57,6 +57,19 @@ window.addEventListener('load', () => {
                 [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2,    2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1],];
             this.requestScrolling = false;
 
+            // Create background img
+            this.createBackgroundImg();
+            this.vpContext = vpContext;
+
+            this.mapX = 0;
+        }
+
+        draw() {
+            vpContext.clearRect(0, 0, 600, 400);
+            vpContext.drawImage(this.backgroundImg, this.mapX, 0);
+        }
+
+        createBackgroundImg() {
             var backgroundCanvas = document.getElementById('backgroundCanvas');
             var backgroundCtx = backgroundCanvas.getContext('2d');
             for (var i = 0; i < this.map.length; i++) {
@@ -73,16 +86,7 @@ window.addEventListener('load', () => {
             this.backgroundImg.width = 1200;
             this.backgroundImg.height = 400;
             this.backgroundImg.src = backgroundCanvas.toDataURL("image/png");
-
             backgroundCanvas.remove();
-            this.vpContext = vpContext;
-
-            this.mapX = 0;
-        }
-
-        draw() {
-            vpContext.clearRect(0, 0, 600, 400);
-            vpContext.drawImage(this.backgroundImg, this.mapX, 0);
         }
     }
 
@@ -116,11 +120,6 @@ window.addEventListener('load', () => {
         }
 
         update(input) {
-            if (this.x >= 500) {
-                console.log('BUMP');
-                background.requestScrolling = true;
-            }
-
             if (input.keys.indexOf(' ') > -1) {
                 this.jumping = true;
                 if (!this.hittingAboveTile(-3)) {

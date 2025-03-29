@@ -101,6 +101,7 @@ window.addEventListener('load', () => {
             document.getElementById('jumpStep').innerText = this.player.jumpStep;
             document.getElementById('jumped').innerText = this.player.jumped
             document.getElementById('jumping').innerText = this.player.jumping
+            document.getElementById('grounded').innerText = this.player.grounded;
         }
     }
 
@@ -117,6 +118,7 @@ window.addEventListener('load', () => {
             this.maxHeightJump = 100;
             this.jumped = 0;
             this.jumpStep = 0;
+            this.grounded = false;
         }
 
         draw() {
@@ -168,14 +170,12 @@ window.addEventListener('load', () => {
                 this.jumping = true;
 
                 if (this.jumped >= this.maxHeightJump) {
-                    this.jumpping = false;
+                    this.jumping = false;
                     this.jumpStep = 0;
                     return;
                 }
 
-                if (!this.jumping) {
-                    console.log('Should not jump');
-                }
+                this.grounded = false;
 
                 if (this.jumped < 50) {
                     this.jumpStep = 5;
@@ -243,11 +243,13 @@ window.addEventListener('load', () => {
                         if (((beginPlayer >= beginTile && beginPlayer <= endTile) ||
                                 (endPlayer >= beginTile && endPlayer <= endTile)) &&
                             (bottomPlayer + 1 >= topTile && bottomPlayer <= topTile + 49)) {
+                            this.grounded = true;
                             return true;
                         }
                     }
                 }
             }
+            this.grounded = false;
             return false;
         }
 

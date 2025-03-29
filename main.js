@@ -102,6 +102,7 @@ window.addEventListener('load', () => {
             document.getElementById('jumped').innerText = this.player.jumped
             document.getElementById('jumping').innerText = this.player.jumping
             document.getElementById('grounded').innerText = this.player.grounded;
+            document.getElementById('fallStep').innerText = this.player.roundedFallStep;
         }
     }
 
@@ -118,7 +119,10 @@ window.addEventListener('load', () => {
             this.maxHeightJump = 100;
             this.jumped = 0;
             this.jumpStep = 0;
+            this.fallStep = 1;
+            this.roundedFallStep = 1;
             this.grounded = false;
+            this.gradientFallStep = 1.03;
         }
 
         draw() {
@@ -140,8 +144,10 @@ window.addEventListener('load', () => {
                 if (this.jumping) {
                     return;
                 }
-                if (!this.hittingGround()) {
-                    this.y += 1;
+                if (!this.hittingGround(Math.round(this.fallStep * this.gradientFallStep))) {
+                    this.fallStep = this.fallStep * this.gradientFallStep;
+                    this.roundedFallStep = Math.floor(this.fallStep);
+                    this.y += this.roundedFallStep;
                     if (this.jumping) {
                         if (this.lastHorizontalMove === 1) {
                             if (!this.hittingRightSideTile()) {
@@ -160,7 +166,11 @@ window.addEventListener('load', () => {
                         this.jumping = false;
                         this.jumped = 0;
                         this.lastHorizontalMove = 0;
+                        this.fallStep = 1;
+                        this.roundedFallStep = 1;
                     }
+                    this.fallStep = 1;
+                    this.roundedFallStep = 1;
                 }
             }
         }
@@ -229,7 +239,7 @@ window.addEventListener('load', () => {
             }
         }
 
-        hittingGround() {
+        hittingGround(roundedFallStep) {
             for (var i = 0; i < this.background.map.length; i++) {
                 for (var j = 0; j < this.background.map[i].length; j++) {
 
@@ -245,7 +255,7 @@ window.addEventListener('load', () => {
 
                         if (((beginPlayer >= beginTile && beginPlayer <= endTile) ||
                                 (endPlayer >= beginTile && endPlayer <= endTile)) &&
-                            (bottomPlayer + 1 >= topTile && bottomPlayer <= topTile + 49)) {
+                            (bottomPlayer + roundedFallStep >= topTile && bottomPlayer <= topTile + (50 -roundedFallStep))) {
                             this.grounded = true;
                             return true;
                         }

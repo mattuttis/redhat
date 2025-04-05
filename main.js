@@ -1,8 +1,3 @@
-class Game {
-    constructor() {
-    }
-}
-
 window.addEventListener('load', () => {
     var elCanvas = document.getElementById("vpCanvas");
     var vpContext = elCanvas.getContext("2d");
@@ -17,10 +12,10 @@ window.addEventListener('load', () => {
             this.keys = []
             window.addEventListener("keydown", e => {
                 if ((// e.key === 'ArrowDown' ||
-                    e.key === 'ArrowUp' ||
-                    e.key === 'ArrowLeft' ||
-                    e.key === 'ArrowRight' ||
-                    e.key === ' ') &&
+                        e.key === 'ArrowUp' ||
+                        e.key === 'ArrowLeft' ||
+                        e.key === 'ArrowRight' ||
+                        e.key === ' ') &&
                     this.keys.indexOf(e.key) === -1) {
                     this.keys.push(e.key);
 
@@ -47,14 +42,14 @@ window.addEventListener('load', () => {
     class Background {
         constructor(vpContext) {
             this.map = [
-                [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                [2, 2, 2, 1, 1, 0, 0, 0, 1, 1, 1, 1,    0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2,    0, 0, 1, 2, 2, 1, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2,    1, 1, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2,    2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2,    2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0],
-                [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2,    2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1],];
+                [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [2, 2, 2, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 0, 0, 1, 2, 2, 1, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1],];
             this.requestScrolling = false;
 
             // Create background img
@@ -136,42 +131,43 @@ window.addEventListener('load', () => {
                 if (!this.hittingLeftSideTile()) {
                     background.mapX--;
                 }
-            } else if (input.keys.indexOf('ArrowLeft') > -1) {
+            }
+            if (input.keys.indexOf('ArrowLeft') > -1) {
                 if (!this.hittingRightSideTile()) {
                     background.mapX++;
                 }
-            }  else {
+            }
+
+            if (this.jumping) {
+                return;
+            }
+            if (!this.hittingGround(Math.round(this.fallStep * this.gradientFallStep))) {
+                this.fallStep = this.fallStep * this.gradientFallStep;
+                this.roundedFallStep = Math.floor(this.fallStep);
+                this.y += this.roundedFallStep;
                 if (this.jumping) {
-                    return;
-                }
-                if (!this.hittingGround(Math.round(this.fallStep * this.gradientFallStep))) {
-                    this.fallStep = this.fallStep * this.gradientFallStep;
-                    this.roundedFallStep = Math.floor(this.fallStep);
-                    this.y += this.roundedFallStep;
-                    if (this.jumping) {
-                        if (this.lastHorizontalMove === 1) {
-                            if (!this.hittingRightSideTile()) {
-                                var cx = this.y;
-                                var movingLeft = cx % 2 === 0 ? 1 : 0;
-                                this.x = this.x - movingLeft;
-                            }
-                        } else if (this.lastHorizontalMove === 2) {
-                            if (!this.hittingLeftSideTile()) {
-                                this.x++;
-                            }
+                    if (this.lastHorizontalMove === 1) {
+                        if (!this.hittingRightSideTile()) {
+                            var cx = this.y;
+                            var movingLeft = cx % 2 === 0 ? 1 : 0;
+                            this.x = this.x - movingLeft;
+                        }
+                    } else if (this.lastHorizontalMove === 2) {
+                        if (!this.hittingLeftSideTile()) {
+                            this.x++;
                         }
                     }
-                } else {
-                    if (this.jumping) {
-                        this.jumping = false;
-                        this.jumped = 0;
-                        this.lastHorizontalMove = 0;
-                        this.fallStep = 1;
-                        this.roundedFallStep = 1;
-                    }
+                }
+            } else {
+                if (this.jumping) {
+                    this.jumping = false;
+                    this.jumped = 0;
+                    this.lastHorizontalMove = 0;
                     this.fallStep = 1;
                     this.roundedFallStep = 1;
                 }
+                this.fallStep = 1;
+                this.roundedFallStep = 1;
             }
         }
 
@@ -204,27 +200,27 @@ window.addEventListener('load', () => {
                     console.log('jumpStep', this.jumpStep);
                     console.log('jumped', this.jumped);
                     console.log('this.y', this.y);
-                } else if ((this.jumpStep -1) > 0 && !this.hittingCeiling(-(this.jumpStep -1))) {
+                } else if ((this.jumpStep - 1) > 0 && !this.hittingCeiling(-(this.jumpStep - 1))) {
                     this.y = this.y - (this.jumpStep - 1);
-                    this.jumped += this.jumpStep -1;
+                    this.jumped += this.jumpStep - 1;
                     console.log('jumpStep', this.jumpStep);
                     console.log('jumped', this.jumped);
                     console.log('this.y', this.y);
-                } else if ((this.jumpStep -2) > 0 && !this.hittingCeiling(-(this.jumpStep -2))) {
+                } else if ((this.jumpStep - 2) > 0 && !this.hittingCeiling(-(this.jumpStep - 2))) {
                     this.y = this.y - (this.jumpStep - 2);
-                    this.jumped += this.jumpStep -2;
+                    this.jumped += this.jumpStep - 2;
                     console.log('jumpStep', this.jumpStep);
                     console.log('jumped', this.jumped);
                     console.log('this.y', this.y);
-                } else if ((this.jumpStep -3) > 0 && !this.hittingCeiling(-(this.jumpStep -3))) {
+                } else if ((this.jumpStep - 3) > 0 && !this.hittingCeiling(-(this.jumpStep - 3))) {
                     this.y = this.y - (this.jumpStep - 3);
-                    this.jumped += this.jumpStep -3;
+                    this.jumped += this.jumpStep - 3;
                     console.log('jumpStep', this.jumpStep);
                     console.log('jumped', this.jumped);
                     console.log('this.y', this.y);
-                } else if ((this.jumpStep -4) > 0 && !this.hittingCeiling(-(this.jumpStep -4))) {
+                } else if ((this.jumpStep - 4) > 0 && !this.hittingCeiling(-(this.jumpStep - 4))) {
                     this.y = this.y - (this.jumpStep - 4);
-                    this.jumped += this.jumpStep -4;
+                    this.jumped += this.jumpStep - 4;
                     console.log('jumpStep', this.jumpStep);
                     console.log('jumped', this.jumped);
                     console.log('this.y', this.y);
@@ -232,9 +228,9 @@ window.addEventListener('load', () => {
                 console.log('---');
             } else {
                 // if (this.jumping) {
-                    this.jumping = false;
-                    this.jumpStep = 0;
-                    this.jumped = 0;
+                this.jumping = false;
+                this.jumpStep = 0;
+                this.jumped = 0;
                 // }
             }
         }
@@ -255,7 +251,7 @@ window.addEventListener('load', () => {
 
                         if (((beginPlayer >= beginTile && beginPlayer <= endTile) ||
                                 (endPlayer >= beginTile && endPlayer <= endTile)) &&
-                            (bottomPlayer + roundedFallStep >= topTile && bottomPlayer <= topTile + (50 -roundedFallStep))) {
+                            (bottomPlayer + roundedFallStep >= topTile && bottomPlayer <= topTile + (50 - roundedFallStep))) {
                             this.grounded = true;
                             return true;
                         }
@@ -270,8 +266,8 @@ window.addEventListener('load', () => {
             for (var i = 0; i < this.background.map.length; i++) {
                 for (var j = 0; j < this.background.map[i].length; j++) {
 
-                    var activeHorizontalTile = Math.floor((this.x - background.mapX)/ 50);
-                    var activeVerticalTile = Math.floor(this.y / 50) ;
+                    var activeHorizontalTile = Math.floor((this.x - background.mapX) / 50);
+                    var activeVerticalTile = Math.floor(this.y / 50);
                     if (j !== activeHorizontalTile && i !== activeVerticalTile - 1) {
                         continue;
                     }
@@ -306,7 +302,7 @@ window.addEventListener('load', () => {
             for (var i = 0; i < this.background.map.length; i++) {
                 for (let j = 0; j < this.background.map[i].length; j++) {
 
-                    var activeHorizontalTile = Math.floor((this.x - background.mapX)/ 50);
+                    var activeHorizontalTile = Math.floor((this.x - background.mapX) / 50);
                     if (j < activeHorizontalTile) {
                         continue;
                     }

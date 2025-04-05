@@ -57,11 +57,12 @@ window.addEventListener('load', () => {
             this.vpContext = vpContext;
 
             this.mapX = 0;
+            this.xViewportMap = 0;
         }
 
         draw() {
             vpContext.clearRect(0, 0, 600, 400);
-            vpContext.drawImage(this.backgroundImg, this.mapX, 0);
+            vpContext.drawImage(this.backgroundImg, -this.xViewportMap, 0);
         }
 
         createBackgroundImg() {
@@ -83,16 +84,28 @@ window.addEventListener('load', () => {
             this.backgroundImg.src = backgroundCanvas.toDataURL("image/png");
             backgroundCanvas.remove();
         }
+
+        scrollRight() {
+            this.xViewportMap++;
+            this.mapX--;
+        }
+
+        scrollLeft() {
+            this.xViewportMap--;
+            this.mapX++;
+        }
     }
 
     class Metrics {
-        constructor(player) {
+        constructor(player, background) {
             this.player = player;
+            this.background = background;
         }
 
         update() {
             document.getElementById('xPlayer').innerText = this.player.x;
             document.getElementById('yPlayer').innerText = this.player.y;
+            document.getElementById('mapX').innerText = this.background.mapX;
             document.getElementById('jumpStep').innerText = this.player.jumpStep;
             document.getElementById('jumped').innerText = this.player.jumped
             document.getElementById('jumping').innerText = this.player.jumping
@@ -105,10 +118,10 @@ window.addEventListener('load', () => {
         constructor(vpContext, background) {
             this.vpContext = vpContext;
             this.background = background;
-            this.x = 300;
-            this.y = 150;
-            this.width = 25;
-            this.height = 25;
+            this.xPlayerInViewport = 300;
+            this.yPlayerInViewport = 150;
+            this.playerWidth = 25;
+            this.playerHeight = 25;
             this.jumping = false;
             this.lastHorizontalMove = 0; // 1: left; 2: right
             this.maxHeightJump = 100;
@@ -122,19 +135,19 @@ window.addEventListener('load', () => {
 
         draw() {
             vpContext.fillStyle = 'white';
-            vpContext.fillRect(this.x, this.y, this.width, this.height);
+            vpContext.fillRect(this.xPlayerInViewport, this.yPlayerInViewport, this.playerWidth, this.playerHeight);
         }
 
         update(input) {
             this.handleJump(input);
             if (input.keys.indexOf('ArrowRight') > -1) {
                 if (!this.hittingLeftSideTile()) {
-                    background.mapX--;
+                    background.scrollRight();
                 }
             }
             if (input.keys.indexOf('ArrowLeft') > -1) {
                 if (!this.hittingRightSideTile()) {
-                    background.mapX++;
+                    background.scrollLeft();
                 }
             }
 
@@ -144,17 +157,17 @@ window.addEventListener('load', () => {
             if (!this.hittingGround(Math.round(this.fallStep * this.gradientFallStep))) {
                 this.fallStep = this.fallStep * this.gradientFallStep;
                 this.roundedFallStep = Math.floor(this.fallStep);
-                this.y += this.roundedFallStep;
+                this.yPlayerInViewport += this.roundedFallStep;
                 if (this.jumping) {
                     if (this.lastHorizontalMove === 1) {
                         if (!this.hittingRightSideTile()) {
-                            var cx = this.y;
+                            var cx = this.yPlayerInViewport;
                             var movingLeft = cx % 2 === 0 ? 1 : 0;
-                            this.x = this.x - movingLeft;
+                            this.xPlayerInViewport = this.xPlayerInViewport - movingLeft;
                         }
                     } else if (this.lastHorizontalMove === 2) {
                         if (!this.hittingLeftSideTile()) {
-                            this.x++;
+                            this.xPlayerInViewport++;
                         }
                     }
                 }
@@ -195,63 +208,49 @@ window.addEventListener('load', () => {
                 }
 
                 if (!this.hittingCeiling(-this.jumpStep)) {
-                    this.y = this.y - this.jumpStep;
+                    this.yPlayerInViewport = this.yPlayerInViewport - this.jumpStep;
                     this.jumped += this.jumpStep;
-                    console.log('jumpStep', this.jumpStep);
-                    console.log('jumped', this.jumped);
-                    console.log('this.y', this.y);
                 } else if ((this.jumpStep - 1) > 0 && !this.hittingCeiling(-(this.jumpStep - 1))) {
-                    this.y = this.y - (this.jumpStep - 1);
+                    this.yPlayerInViewport = this.yPlayerInViewport - (this.jumpStep - 1);
                     this.jumped += this.jumpStep - 1;
-                    console.log('jumpStep', this.jumpStep);
-                    console.log('jumped', this.jumped);
-                    console.log('this.y', this.y);
                 } else if ((this.jumpStep - 2) > 0 && !this.hittingCeiling(-(this.jumpStep - 2))) {
-                    this.y = this.y - (this.jumpStep - 2);
+                    this.yPlayerInViewport = this.yPlayerInViewport - (this.jumpStep - 2);
                     this.jumped += this.jumpStep - 2;
-                    console.log('jumpStep', this.jumpStep);
-                    console.log('jumped', this.jumped);
-                    console.log('this.y', this.y);
                 } else if ((this.jumpStep - 3) > 0 && !this.hittingCeiling(-(this.jumpStep - 3))) {
-                    this.y = this.y - (this.jumpStep - 3);
+                    this.yPlayerInViewport = this.yPlayerInViewport - (this.jumpStep - 3);
                     this.jumped += this.jumpStep - 3;
-                    console.log('jumpStep', this.jumpStep);
-                    console.log('jumped', this.jumped);
-                    console.log('this.y', this.y);
                 } else if ((this.jumpStep - 4) > 0 && !this.hittingCeiling(-(this.jumpStep - 4))) {
-                    this.y = this.y - (this.jumpStep - 4);
+                    this.yPlayerInViewport = this.yPlayerInViewport - (this.jumpStep - 4);
                     this.jumped += this.jumpStep - 4;
-                    console.log('jumpStep', this.jumpStep);
-                    console.log('jumped', this.jumped);
-                    console.log('this.y', this.y);
                 }
                 console.log('---');
             } else {
-                // if (this.jumping) {
                 this.jumping = false;
                 this.jumpStep = 0;
                 this.jumped = 0;
-                // }
             }
         }
 
         hittingGround(roundedFallStep) {
+            // TODO: calculate which tiles to test
+            var xBeginPlayerMap = this.xPlayerInViewport + background.xViewportMap;
+            var xEndPlayerMap = this.xPlayerInViewport + 24 + background.xViewportMap;
+            var yBottomPlayerMap = this.yPlayerInViewport + 24;
+
             for (var i = 0; i < this.background.map.length; i++) {
                 for (var j = 0; j < this.background.map[i].length; j++) {
 
                     if (this.background.map[i][j] !== 0) {
                         // we have ground
-                        var beginPlayer = this.x - background.mapX;
-                        var endPlayer = this.x + 24 - background.mapX;
-                        var bottomPlayer = this.y + 24;
 
-                        var beginTile = j * 50;
-                        var endTile = beginTile + 49;
-                        var topTile = i * 50;
 
-                        if (((beginPlayer >= beginTile && beginPlayer <= endTile) ||
-                                (endPlayer >= beginTile && endPlayer <= endTile)) &&
-                            (bottomPlayer + roundedFallStep >= topTile && bottomPlayer <= topTile + (50 - roundedFallStep))) {
+                        var xBeginTileMap = j * 50;
+                        var xEndTileMap = xBeginTileMap + 49;
+                        var yTopTileMap = i * 50;
+
+                        if (((xBeginPlayerMap >= xBeginTileMap && xBeginPlayerMap <= xEndTileMap) ||
+                                (xEndPlayerMap >= xBeginTileMap && xEndPlayerMap <= xEndTileMap)) &&
+                            (yBottomPlayerMap + roundedFallStep >= yTopTileMap && yBottomPlayerMap <= yTopTileMap + (50 - roundedFallStep))) {
                             this.grounded = true;
                             return true;
                         }
@@ -266,17 +265,17 @@ window.addEventListener('load', () => {
             for (var i = 0; i < this.background.map.length; i++) {
                 for (var j = 0; j < this.background.map[i].length; j++) {
 
-                    var activeHorizontalTile = Math.floor((this.x - background.mapX) / 50);
-                    var activeVerticalTile = Math.floor(this.y / 50);
+                    var activeHorizontalTile = Math.floor((this.xPlayerInViewport - background.mapX) / 50);
+                    var activeVerticalTile = Math.floor(this.yPlayerInViewport / 50);
                     if (j !== activeHorizontalTile && i !== activeVerticalTile - 1) {
                         continue;
                     }
 
                     if (this.background.map[i][j] !== 0) {
                         // we have ground
-                        var beginPlayer = this.x - background.mapX;
-                        var endPlayer = this.x + 24 - background.mapX;
-                        var topPlayer = this.y;
+                        var beginPlayer = this.xPlayerInViewport - background.mapX;
+                        var endPlayer = this.xPlayerInViewport + 24 - background.mapX;
+                        var topPlayer = this.yPlayerInViewport;
 
                         var beginTile = j * 50;
                         var endTile = beginTile + 49;
@@ -302,17 +301,17 @@ window.addEventListener('load', () => {
             for (var i = 0; i < this.background.map.length; i++) {
                 for (let j = 0; j < this.background.map[i].length; j++) {
 
-                    var activeHorizontalTile = Math.floor((this.x - background.mapX) / 50);
+                    var activeHorizontalTile = Math.floor((this.xPlayerInViewport - background.mapX) / 50);
                     if (j < activeHorizontalTile) {
                         continue;
                     }
 
                     if (this.background.map[i][j] !== 0) {
 
-                        var leftPlayer = this.x - background.mapX;
-                        var rightPlayer = this.x + 24 - background.mapX;
-                        var topPlayer = this.y;
-                        var bottomPlayer = this.y + 24;
+                        var leftPlayer = this.xPlayerInViewport - background.mapX;
+                        var rightPlayer = this.xPlayerInViewport + 24 - background.mapX;
+                        var topPlayer = this.yPlayerInViewport;
+                        var bottomPlayer = this.yPlayerInViewport + 24;
                         var topTile = i * 50;
 
                         var bottomTile = topTile + 49;
@@ -334,16 +333,15 @@ window.addEventListener('load', () => {
             for (let i = 0; i < this.background.map.length; i++) {
                 for (let j = 0; j < this.background.map[i].length; j++) {
 
-                    var activeHorizontalTile = Math.floor((this.x - background.mapX) / 50);
+                    var activeHorizontalTile = Math.floor((this.xPlayerInViewport - background.mapX) / 50);
                     if (j > activeHorizontalTile) {
                         continue;
-
                     }
 
                     if (this.background.map[i][j] !== 0) {
-                        var leftPlayer = this.x - background.mapX;
-                        var topPlayer = this.y;
-                        var bottomPlayer = this.y + 24;
+                        var leftPlayer = this.xPlayerInViewport - background.mapX;
+                        var topPlayer = this.yPlayerInViewport;
+                        var bottomPlayer = this.yPlayerInViewport + 24;
 
                         var topTile = i * 50;
                         var bottomTile = topTile + 49;
@@ -364,7 +362,7 @@ window.addEventListener('load', () => {
     const background = new Background(vpContext);
     const inputHandler = new InputHandler();
     const player = new Player(vpContext, background);
-    const metrics = new Metrics(player);
+    const metrics = new Metrics(player, background);
 
     function animate() {
         background.draw();
